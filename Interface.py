@@ -48,8 +48,8 @@ class Interface(Frame):
  
 	def checkIface(self):
 		self.iface.config(state='normal')
-		self.startProcess('sudo apt update')
 		self.checkInternet()
+		self.startProcess('make help')
  
 	def checkInternet(self):
 		try:
@@ -81,6 +81,7 @@ class Interface(Frame):
 		while process.poll() is None:
 			queue.put(process.stdout.readline())
 
+		print(str(self.queue.qsize()))
 
 	def startProcess(self, command):
 		"""Fonction qui sera lancé afind e récupérer la sortie standard"""
@@ -100,17 +101,20 @@ class Interface(Frame):
 	def updateLines(self):
 		"""Fnction va permettre de paramétrer l'affichage des ligne au seind de l'interface"""
 
-		self.iface.delete(1.0,END)
+		# self.iface.delete(1.0,END)
 
 		try:
-			line = self.queue.get(False) # False for non-blocking, raises Empty if empty
+			print("Try : " + str(self.queue.qsize()))
+			line = self.queue.get() # False for non-blocking, raises Empty if empty
 			self.iface.config(state='normal')
 			self.iface.insert(END, line)
-			self.iface.config(state='disabled')
+			# self.iface.config(state='disabled')
 		except Empty:
+			print('Empty')
 			pass
 
 		if self.process.poll() is None:
+			print("Poll")
 			self.after(100, self.updateLines)
 
 	def leave(self):
